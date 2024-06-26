@@ -1,24 +1,36 @@
 import { Router } from "express";
-import productsModel from "../dao/models/products.model.js";
 
+
+import ProductsManager from "../dao/products.manager.mdb.js";
 import config from "../config.js";
 
 
 const router = Router();
+const manager = new ProductsManager();
 
-router.get('/', async (req, res) =>{
+
+router.get('/', async (req, res) => {
+    try{
+        const process = await manager.getAll()
+        res.status(200).send({origin: config.SERVER, payload: process})
+    }catch(err){
+        res.status(200).send({origin: config.SERVER, payload:null, error:err.message})
+    }
+})
+
+router.get('/:page', async (req, res) =>{
     try {
-        const products = await productsModel.find().lean();
-        res.status(200).send({origin: config.SERVER, payload: products });
+        const process = await manager.getPaginated(config.PRODUCTS_PER_PAGE, req.params.page)
+        res.status(200).send({origin: config.SERVER, payload: process });
     } catch (err){
         res.status(200).send({origin: config.SERVER, payload:null, error: err.message });
     } ;
 });
 
+
 router.post('/', async (req, res) =>{
     try{
-        const socketServer = req.app.get('socketServer');
-        const process = await productsModel.create(req.body)
+        const process = await manager.add(req.body)
 
         res.status(200).send ({origin: config.SERVER, payload: process});
     }catch(err) {

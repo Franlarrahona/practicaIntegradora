@@ -8,4 +8,8 @@ router.get('/products', (req, res) =>{
     res.render('products', {data : data});
 })
 
+router.get('/login', (req, res) =>{
+    res.render('login' )
+})
+
 export default router
